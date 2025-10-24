@@ -1,15 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>ブログアプリケーション</h1>
-<a href="create" role="button">新規作成画面</a>
-<article>
-    <h2>記事１</h2>
-    <p>作成日時： 2027/10/22 10:00</p>
-    <p>こちらは記事１の内容です。</p>
-</article>
-<article>
-    <h2>記事２</h2>
-    <p>作成日時： 2027/10/22 12:00</p>
-    <p>こちらは記事2の内容です。</p>
+    <h1>ブログアプリケーション</h1>
+    <a href="create" role="button">新規作成画面</a>
+    {% for post in posts %}
+    <article>
+        <h2>{{ post.title }}</h2>
+        <p>作成日時： {{ post.created_at }}</p>
+        <p>{{ post.body }}</p>
+    {% endfor %}
 </article>
 {% endblock %}
