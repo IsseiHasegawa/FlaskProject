@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, LoginManager
 import os
 from datetime import datetime
@@ -32,6 +33,31 @@ def index():
         posts = Post.query.all()
 
     return render_template("index.html", posts=posts)
+
+@app.route('/signup', methods=["GET", "POST"])
+def signup():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        user = User(username=username, 
+                    password=generate_password_hash(password, method='sha256'))
+        db.session.add(user)
+        db.session.commit()
+        return redirect('/login')
+    else:
+        return render_template("signup.html")
+
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        title = request.form.get("title")
+        body = request.form.get("body")
+        post = Post(title=title, body=body)
+        db.session.add(post)
+        db.session.commit()
+        return redirect('/')
+    else:
+        return render_template("create.html")
 
 @app.route('/create', methods=["GET", "POST"])
 def create():
