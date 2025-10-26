@@ -2,7 +2,7 @@ from flask import Flask
 from flask import render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin, LoginManager, login_user
+from flask_login import UserMixin, LoginManager, login_user,logout_user, login_required
 import os
 from datetime import datetime
 import pytz
@@ -27,7 +27,12 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(30), unique=True)
     password = db.Column(db.String(12))
 
+@login_manager.user_loader
+def load_uer(user_id):
+    return User.query.get(int(user_id))
+
 @app.route('/', methods=["GET", "POST"])
+@login_required
 def index():
     if request.method == "GET":
         posts = Post.query.all()
@@ -52,6 +57,7 @@ def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+
         user = User.query.filter_by(username=username).first()
         if check_password_hash(user.password, password):
             login_user(user)
@@ -59,7 +65,14 @@ def login():
     else:
         return render_template("login.html")
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/login')
+
 @app.route('/create', methods=["GET", "POST"])
+@login_required
 def create():
     if request.method == "POST":
         title = request.form.get("title")
@@ -72,6 +85,7 @@ def create():
         return render_template("create.html")
 
 @app.route('/<int:id>/update', methods=["GET", "POST"])
+@login_required
 def update(id):
     post = Post.query.get(id)
     if request.method == "GET":
@@ -83,6 +97,7 @@ def update(id):
         return redirect('/')
     
 @app.route('/<int:id>/delete', methods=["GET"])
+@login_required
 def delete(id):
     post = Post.query.get(id)
 
