@@ -45,7 +45,7 @@ def signup():
         username = request.form.get("username")
         password = request.form.get("password")
         user = User(username=username, 
-                    password=generate_password_hash(password, method='sha256'))
+                    password=generate_password_hash(password, method='pbkdf2:sha256'))
         db.session.add(user)
         db.session.commit()
         return redirect('/login')
