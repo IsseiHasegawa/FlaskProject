@@ -2,7 +2,7 @@ from flask import Flask
 from flask import render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin, LoginManager
+from flask_login import UserMixin, LoginManager, login_user
 import os
 from datetime import datetime
 import pytz
@@ -50,14 +50,14 @@ def signup():
 @app.route('/login', methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        title = request.form.get("title")
-        body = request.form.get("body")
-        post = Post(title=title, body=body)
-        db.session.add(post)
-        db.session.commit()
-        return redirect('/')
+        username = request.form.get("username")
+        password = request.form.get("password")
+        user = User.query.filter_by(username=username).first()
+        if check_password_hash(user.password, password):
+            login_user(user)
+            return redirect('/')
     else:
-        return render_template("create.html")
+        return render_template("login.html")
 
 @app.route('/create', methods=["GET", "POST"])
 def create():
